@@ -1,0 +1,5 @@
+.dub/
+bin/
+dub.selections.json
+filesystemwatcher.sln
+filesystemwatcher.visualdproj

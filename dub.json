@@ -1,0 +1,10 @@
+{
+	"name": "FileSystemWatcher",
+	"description": "Package manager for D packages",
+	"license": "Boost License 1.0",
+	"copyright": "Copyright © 2015 Xavier Bigand",
+	"authors": ["Xavier Bigand"],
+
+    "targetPath": "bin",
+    "targetType" : "executable",
+}
