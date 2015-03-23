@@ -84,8 +84,11 @@ class FileSystemWatcher
 import std.stdio;
 import std.process;
 
+import bindings.win32;
+
 unittest
 {
 	writeln("foo");
+//	ReadDirectoryChanges();
 	system("PAUSE");
 }

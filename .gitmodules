@@ -1,0 +1,3 @@
+[submodule "source/bindings/win32"]
+	path = source/bindings/win32
+	url = https://github.com/CS-svnmirror/dsource-bindings-win32.git

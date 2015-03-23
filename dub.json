@@ -6,5 +6,6 @@
 	"authors": ["Xavier Bigand"],
 
     "targetPath": "bin",
-    "targetType" : "executable",
+    "targetType": "executable",
+    "excludedSourceFiles": ["*/bindings/win32/*"],
 }
