@@ -90,5 +90,5 @@ unittest
 {
 	writeln("foo");
 //	ReadDirectoryChanges();
-	system("PAUSE");
+	executeShell("PAUSE");
 }
