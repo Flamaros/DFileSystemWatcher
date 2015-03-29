@@ -22,7 +22,14 @@ import std.file;
 import std.string;
 import std.signals;
 
-class FileSystemWatcher
+version (Windows)
+{
+	public import filesystemwatcher_win32;
+
+	alias FileSystemWatcherWin32	FileSystemWatcher;
+}
+
+interface FileSystemWatcherInterface
 {
 	/********************************************
 	Adds path to the file system watcher if path exists. The path is not added
@@ -42,43 +49,12 @@ class FileSystemWatcher
 	--------------------
 	--------------------
 	*/
-	bool addPath(in string path)
-	{
-		return false;
-	}
-
-	string[] addPaths(in string[] path)
-	{
-		string[]	failedPaths;
-
-		return failedPaths;
-	}
-
-	string[] directories() const
-	{
-		string[]	directories;
-
-		return directories;
-	}
-
-	string[] files() const
-	{
-		string[]	files;
-
-		return files;
-	}
-
-	bool removePath(in string path)
-	{
-		return false;
-	}
-
-	string[] removePaths(in string[] path)
-	{
-		string[]	failedPaths;
-
-		return failedPaths;
-	}
+	bool addPath(in string path);
+	string[] addPaths(in string[] path);
+	string[] directories() const;
+	string[] files() const;
+	bool removePath(in string path);
+	string[] removePaths(in string[] path);
 }
 
 import std.stdio;
