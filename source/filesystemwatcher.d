@@ -56,15 +56,3 @@ interface FileSystemWatcherInterface
 	bool removePath(in string path);
 	string[] removePaths(in string[] path);
 }
-
-import std.stdio;
-import std.process;
-
-import bindings.win32;
-
-unittest
-{
-	writeln("foo");
-//	ReadDirectoryChanges();
-	executeShell("PAUSE");
-}

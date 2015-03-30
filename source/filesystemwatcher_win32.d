@@ -19,10 +19,13 @@ Authors:   Xavier Bigand
 module filesystemwatcher_win32;
 
 import std.file;
+import std.path;
 import std.string;
 import std.signals;
 
 import filesystemwatcher;
+
+import bindings.win32;
 
 class FileSystemWatcherWin32 : FileSystemWatcherInterface
 {
@@ -85,12 +88,31 @@ class FileSystemWatcherWin32 : FileSystemWatcherInterface
 
 import std.stdio;
 import std.process;
+import std.conv;
 
-import bindings.win32;
+// https://msdn.microsoft.com/en-us/library/windows/desktop/aa365465%28v=vs.85%29.aspx
 
 unittest
 {
-	writeln("foo");
-//	ReadDirectoryChanges();
+	string	path = dirName(thisExePath());
+
+	// Opening the directory
+	if (isDir(path) == false)
+		return;
+
+	// TODO Check the directory isn't already watched
+
+	HANDLE directoryHandle = CreateFileW(to!(wchar[])(path).ptr,
+										 FILE_LIST_DIRECTORY, 
+										 FILE_SHARE_READ | FILE_SHARE_WRITE,	// We don't allow deletation or renaming of this directory during the watch.
+										 null,
+										 OPEN_EXISTING,					// It's not valid to create a directory with CreateFile, but in our case that not the goal so everything is good here.
+										 FILE_FLAG_BACKUP_SEMANTICS |	// FILE_FLAG_BACKUP_SEMANTICS to obtain a directory handle (used later by ReadDirectoryChanges).
+										 FILE_FLAG_OVERLAPPED,			// FILE_FLAG_OVERLAPPED need to be specified when an OVERLAPPED structure is used with ReadDirectoryChanges.
+										 null);
+
+	// TODO create the io completion port here
+
+//	ReadDirectoryChangesW(directoryHandle);
 	executeShell("PAUSE");
 }
