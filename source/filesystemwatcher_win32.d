@@ -131,6 +131,6 @@ unittest
                                                     FILE_NOTIFY_CHANGE_SECURITY,
                                                 null,
                                                 &overlapped,
-                                                null);
+                                                null);  // TODO use the io completion port here
 	executeShell("PAUSE");
 }
