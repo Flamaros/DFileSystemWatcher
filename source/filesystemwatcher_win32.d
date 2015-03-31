@@ -106,13 +106,31 @@ unittest
 										 FILE_LIST_DIRECTORY, 
 										 FILE_SHARE_READ | FILE_SHARE_WRITE,	// We don't allow deletation or renaming of this directory during the watch.
 										 null,
-										 OPEN_EXISTING,					// It's not valid to create a directory with CreateFile, but in our case that not the goal so everything is good here.
-										 FILE_FLAG_BACKUP_SEMANTICS |	// FILE_FLAG_BACKUP_SEMANTICS to obtain a directory handle (used later by ReadDirectoryChanges).
-										 FILE_FLAG_OVERLAPPED,			// FILE_FLAG_OVERLAPPED need to be specified when an OVERLAPPED structure is used with ReadDirectoryChanges.
+										 OPEN_EXISTING,					        // It's not valid to create a directory with CreateFile, but in our case that not the goal so everything is good here.
+										 FILE_FLAG_BACKUP_SEMANTICS |	        // FILE_FLAG_BACKUP_SEMANTICS to obtain a directory handle (used later by ReadDirectoryChanges).
+                                             FILE_FLAG_OVERLAPPED,			    // FILE_FLAG_OVERLAPPED need to be specified when an OVERLAPPED structure is used with ReadDirectoryChanges.
 										 null);
 
 	// TODO create the io completion port here
 
-//	ReadDirectoryChangesW(directoryHandle);
+    FILE_NOTIFY_INFORMATION[512]    buffer;
+    OVERLAPPED                      overlapped;
+    BOOL                            readDirectoryResult;
+
+	readDirectoryResult = ReadDirectoryChangesW(directoryHandle,
+                                                &buffer[0],
+                                                buffer.sizeof,
+                                                true,
+                                                FILE_NOTIFY_CHANGE_FILE_NAME |
+                                                    FILE_NOTIFY_CHANGE_DIR_NAME |
+                                                    FILE_NOTIFY_CHANGE_ATTRIBUTES |
+                                                    FILE_NOTIFY_CHANGE_SIZE |
+                                                    FILE_NOTIFY_CHANGE_LAST_WRITE |
+                                                    FILE_NOTIFY_CHANGE_LAST_ACCESS |
+                                                    FILE_NOTIFY_CHANGE_CREATION |
+                                                    FILE_NOTIFY_CHANGE_SECURITY,
+                                                null,
+                                                &overlapped,
+                                                null);
 	executeShell("PAUSE");
 }

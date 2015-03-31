@@ -6,5 +6,15 @@ extern (Windows)
 {
 	alias void function(DWORD, DWORD, LPOVERLAPPED) LPOVERLAPPED_COMPLETION_ROUTINE;
 
+    struct FILE_NOTIFY_INFORMATION {
+        DWORD NextEntryOffset;
+        DWORD Action;
+        DWORD FileNameLength;
+        WCHAR _FileName;
+
+        WCHAR* FileName() { return &_FileName; }
+    }
+    alias FILE_NOTIFY_INFORMATION* PFILE_NOTIFY_INFORMATION;
+
 	BOOL ReadDirectoryChangesW(HANDLE, PVOID, DWORD, BOOL, DWORD, PDWORD, LPOVERLAPPED, LPOVERLAPPED_COMPLETION_ROUTINE);
 }
