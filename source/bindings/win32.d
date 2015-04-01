@@ -10,11 +10,10 @@ extern (Windows)
         DWORD NextEntryOffset;
         DWORD Action;
         DWORD FileNameLength;
-        WCHAR _FileName;
-
-        WCHAR* FileName() { return &_FileName; }
+        WCHAR[1] FileName;
     }
     alias FILE_NOTIFY_INFORMATION* PFILE_NOTIFY_INFORMATION;
 
 	BOOL ReadDirectoryChangesW(HANDLE, PVOID, DWORD, BOOL, DWORD, PDWORD, LPOVERLAPPED, LPOVERLAPPED_COMPLETION_ROUTINE);
+	BOOL GetOverlappedResult(HANDLE, LPOVERLAPPED, PDWORD, BOOL);
 }
