@@ -129,8 +129,10 @@ unittest
 
 		memset(&overlapped, 0, overlapped.sizeof);
 
-		// TODO Need initialize overlapped.hEvent ?
-		// Be sure to set the hEvent member of the OVERLAPPED structure to a unique event.
+		overlapped.hEvent = CreateEventW(null,
+										 false,
+										 true,
+										 null);
 
 		readDirectoryResult = ReadDirectoryChangesW(directoryHandle,
 													&buffer[0],
@@ -237,7 +239,7 @@ unittest
 				}
 			}
 
-			Sleep(50);
+//			Sleep(50);
 		}
 
 		CloseHandle(directoryHandle);
