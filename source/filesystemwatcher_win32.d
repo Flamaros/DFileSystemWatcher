@@ -173,6 +173,8 @@ unittest
 			BOOL    getOverlappedResultResult;
 			DWORD	numberOfBytesTransferred;
 
+			// It seems I am loosing watching capabilities during threatement of previous data
+
 			getOverlappedResultResult = GetOverlappedResult(directoryHandle,
 								&overlapped,
 								&numberOfBytesTransferred,
