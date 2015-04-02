@@ -126,6 +126,7 @@ unittest
 		BOOL                            readDirectoryResult;
 
 		assert(buffer.sizeof < 64 * 1000 * 1024);	// From official documentation : ReadDirectoryChangesW fails with ERROR_INVALID_PARAMETER when the buffer length is greater than 64 KB and the application is monitoring a directory over the network. This is due to a packet size limitation with the underlying file sharing protocols.
+        assert(cast(uint)buffer.ptr % DWORD.sizeof == 0);   // buffer must be DWORD aligned
 
 		memset(&overlapped, 0, overlapped.sizeof);
 
@@ -134,41 +135,43 @@ unittest
 										 true,
 										 null);
 
-		readDirectoryResult = ReadDirectoryChangesW(directoryHandle,
-													&buffer[0],
-													buffer.sizeof,
-													true,
-													FILE_NOTIFY_CHANGE_FILE_NAME |
-														FILE_NOTIFY_CHANGE_DIR_NAME |
-														FILE_NOTIFY_CHANGE_ATTRIBUTES |
-														FILE_NOTIFY_CHANGE_SIZE |
-														FILE_NOTIFY_CHANGE_LAST_WRITE |
-														FILE_NOTIFY_CHANGE_LAST_ACCESS |
-														FILE_NOTIFY_CHANGE_CREATION |
-														FILE_NOTIFY_CHANGE_SECURITY,
-													null,
-													&overlapped,
-													null);  // TODO use the io completion port here
-
-		if (readDirectoryResult == false)
-		{
-			writeln("Error : Failed to read directory.");
-			switch (GetLastError())
-			{
-				case ERROR_INVALID_FUNCTION:
-					writeln("\tTarget file system does not support this operation.");
-					break;
-				default:
-					break;
-			}
-			return;
-		}
-
-		while (true)
+		for (uint i = 0; true; i++)
 		{
 			synchronized (mutex)
 				if (running == false)
 					break;
+
+            readDirectoryResult = ReadDirectoryChangesW(directoryHandle,
+                                                        &buffer[0],
+                                                        buffer.sizeof,
+                                                        true,
+                                                        FILE_NOTIFY_CHANGE_FILE_NAME |
+                                                            FILE_NOTIFY_CHANGE_DIR_NAME |
+                                                            FILE_NOTIFY_CHANGE_ATTRIBUTES |
+                                                            FILE_NOTIFY_CHANGE_SIZE |
+                                                            FILE_NOTIFY_CHANGE_LAST_WRITE |
+                                                            FILE_NOTIFY_CHANGE_LAST_ACCESS |
+                                                            FILE_NOTIFY_CHANGE_CREATION |
+                                                            FILE_NOTIFY_CHANGE_SECURITY,
+                                                        null,
+                                                        &overlapped,
+                                                        null);  // TODO use the io completion port here
+
+            if (readDirectoryResult == false)
+            {
+                writeln("Error : Failed to read directory.");
+                switch (GetLastError())
+                {
+                    case ERROR_INVALID_FUNCTION:
+                        writeln("\tTarget file system does not support this operation.");
+                        break;
+                    default:
+                        writefln("\tError : ReadDirectoryChangesW - code : %d.", GetLastError());
+                        break;
+                }
+                Sleep(50);
+                continue;
+            }
 
 			BOOL    getOverlappedResultResult;
 			DWORD	numberOfBytesTransferred;
@@ -222,25 +225,13 @@ unittest
 						offset = info.NextEntryOffset;
 					}
 					while (offset != 0);
-
-					readDirectoryResult = ReadDirectoryChangesW(directoryHandle,
-																&buffer[0],
-																buffer.sizeof,
-																true,
-																FILE_NOTIFY_CHANGE_FILE_NAME |
-																	FILE_NOTIFY_CHANGE_DIR_NAME |
-																	FILE_NOTIFY_CHANGE_ATTRIBUTES |
-																	FILE_NOTIFY_CHANGE_SIZE |
-																	FILE_NOTIFY_CHANGE_LAST_WRITE |
-																	FILE_NOTIFY_CHANGE_LAST_ACCESS |
-																	FILE_NOTIFY_CHANGE_CREATION |
-																	FILE_NOTIFY_CHANGE_SECURITY,
-																null,
-																&overlapped,
-																null);  // TODO use the io completion port here
 				}
 			}
-
+/*            else
+            {
+                writefln("\tError : GetOverlappedResult - code : %d.", GetLastError());
+            }
+*/
 //			Sleep(50);
 		}
 
