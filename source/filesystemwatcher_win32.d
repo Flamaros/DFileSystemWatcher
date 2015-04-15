@@ -198,7 +198,7 @@ unittest
 
 						wchar[]	fileName;
 
-						fileName.length = info.FileNameLength / WCHAR.sizeof;
+						fileName.length = info.FileNameLength / wchar.sizeof;
 						memcpy(fileName.ptr, &info.FileName[0], info.FileNameLength);
 						*(fileName.ptr + info.FileNameLength) = 0;
 
