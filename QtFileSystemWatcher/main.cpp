@@ -1,8 +1,10 @@
+#include "main.h"
+
 #include <QCoreApplication>
 
-#include <QThread>
 #include <QMutex>
 #include <QFile>
+#include <QFileInfo>
 
 #include <windows.h>
 
@@ -10,7 +12,7 @@ QMutex	mutex;
 bool	running = true;
 QString	path;
 
-void	watchingLoop()
+void	WatchingLoop::run()
 {
     HANDLE directoryHandle = CreateFileW(path.toStdWString().c_str(),
                                          FILE_LIST_DIRECTORY,
@@ -72,7 +74,7 @@ void	watchingLoop()
                     printf("\tTarget file system does not support this operation.\n");
                     break;
                 default:
-                    printf("\tError : ReadDirectoryChangesW - code : %d.\n", GetLastError());
+                    printf("\tError : ReadDirectoryChangesW - code : %ld.\n", GetLastError());
                     break;
             }
             Sleep(50);
@@ -91,7 +93,7 @@ void	watchingLoop()
 
         if (getOverlappedResultResult)
         {
-            printf("%d %d\n", numberOfBytesTransferred, sizeof(FILE_NOTIFY_INFORMATION));
+            printf("%ld %d\n", numberOfBytesTransferred, sizeof(FILE_NOTIFY_INFORMATION));
 
             if (numberOfBytesTransferred > 0)
             {
@@ -104,11 +106,11 @@ void	watchingLoop()
 
                     WCHAR*  fileName;
 
-                    fileName = new WCHAR[info->FileNameLength / sizeof(WCHAR)];
+                    fileName = new WCHAR[info->FileNameLength / sizeof(WCHAR) + 1];
                     memcpy(fileName, &info->FileName[0], info->FileNameLength);
-                    *(fileName + info->FileNameLength) = 0;
+                    fileName[info->FileNameLength / sizeof(WCHAR)] = 0;
 
-                    printf("File \"%s\" was modified by following operation:\n", fileName);
+                    printf("File \"%s\" was modified by following operation:\n", QString::fromWCharArray(fileName).toUtf8().data());
 
                     switch (info->Action)
                     {
@@ -129,6 +131,8 @@ void	watchingLoop()
                             break;
                     }
                     offset = info->NextEntryOffset;
+
+                    delete[] fileName;
                 }
                 while (offset != 0);
             }
@@ -152,17 +156,16 @@ int main(int argc, char *argv[])
 //    return a.exec();
 
 
-    path = dirName(thisExePath());
+    path = QCoreApplication::applicationDirPath();
 
     // Opening the directory
-    if (isDir(path) == false)
+    if (QFileInfo::exists(path) == false)
         return -1;
 
     // TODO Check the directory isn't already watched
 
 
-
-    QThread watchingLoopThread = new QThread(&watchingLoop);
+    WatchingLoop watchingLoopThread;
 
     watchingLoopThread.start();
 
@@ -171,17 +174,20 @@ int main(int argc, char *argv[])
     // Doing some file operations in the folder watched
     QFile   file(path + "/new_file.txt");
 
+    file.open(QIODevice::WriteOnly);
     file.write("foo");	// Will normally throw a creation and a file size modification
     file.close();
     file.remove();
     // --
 
-    printf("Press any key to exit!\n");
-    system("PAUSE");
+//    printf("Press any key to exit!\n");
+//    system("PAUSE");
 
     mutex.lock();
     running = false;
     mutex.unlock();
+
+    watchingLoopThread.wait();
 
     return 0;
 }

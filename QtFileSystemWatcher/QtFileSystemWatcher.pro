@@ -17,3 +17,5 @@ TEMPLATE = app
 
 SOURCES += main.cpp
 
+
+HEADERS += main.h

@@ -198,9 +198,9 @@ unittest
 
 						wchar[]	fileName;
 
-						fileName.length = info.FileNameLength / wchar.sizeof;
+						fileName.length = info.FileNameLength / wchar.sizeof + 1;
 						memcpy(fileName.ptr, &info.FileName[0], info.FileNameLength);
-						*(fileName.ptr + info.FileNameLength) = 0;
+						fileName[info.FileNameLength / wchar.sizeof] = 0;
 
 						writefln("File \"%s\" was modified by following operation:", fileName);
 
